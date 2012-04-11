@@ -118,6 +118,7 @@ var Tester = function(casper, options) {
      */
     this.assertEquals = function assertEquals(subject, expected, message) {
         var eventName;
+        message = message || "";
         if (this.testEquals(subject, expected)) {
             eventName = "success";
             casper.echo(this.colorize(this.options.passText, 'INFO') + ' ' + this.formatMessage(message));
@@ -264,6 +265,18 @@ var Tester = function(casper, options) {
      */
     this.assertSelectorExists = function assertSelectorExists(selector, message) {
         return this.assert(this.exists(selector), message);
+    };
+
+    /**
+     * Asserts that given text exits in the document body.
+     *
+     * @param  String   text       Text to be found
+     * @param  String   message    Test description
+     */
+    this.assertTextExists = function assertTextExists(text, message) {
+        return this.assert((casper.evaluate(function() {
+            return document.body.innerText;
+        }).indexOf(text) != -1), message);
     };
 
     /**
@@ -438,13 +451,9 @@ var Tester = function(casper, options) {
                 files.push( fullPath );
             }
         });
-
-        // descend into each subdir in order and add its 
-        // files to the list
-        subdirs.forEach(function(subdir) {
-            files = files.concat(self.findTestFiles(subdir));
-        });
-        return files;
+        return entries.filter(function(entry) {
+            return utils.isJsFile(fs.absolute(fs.pathJoin(dir, entry)));
+        }).sort();
     };
 
     /**

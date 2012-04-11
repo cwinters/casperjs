@@ -7,7 +7,8 @@ import sys
 
 def resolve(path):
     if os.path.islink(path):
-        return resolve(os.readlink(path))
+        path = os.path.join(os.path.dirname(path), os.readlink(path))
+        return resolve(path)
     return path
 
 PHANTOMJS_NATIVE_ARGS = [
@@ -20,9 +21,13 @@ PHANTOMJS_NATIVE_ARGS = [
     'local-to-remote-url-access',
     'max-disk-cache-size',
     'output-encoding',
+    'remote-debugger-port',
+    'remote-debugger-autorun',
     'proxy',
+    'proxy-auth',
     'proxy-type',
     'script-encoding',
+    'web-security',
 ]
 CASPER_ARGS = []
 PHANTOMJS_ARGS = []
@@ -44,6 +49,9 @@ CASPER_COMMAND.extend(CASPER_ARGS)
 
 try:
     status = subprocess.call(CASPER_COMMAND)
+except OSError, err:
+    status = 1
+    print('Fatal: %s; did you install phantomjs?' % err)
 except KeyboardInterrupt:
     print('\nCasperJS interrupted, exiting.')
     status = 0

@@ -251,7 +251,7 @@ Casper.prototype.clear = function clear() {
  * @param  String   selector        A DOM CSS3 compatible selector
  * @return Boolean
  */
-Casper.prototype.click = function click(selector, fallbackToHref) {
+Casper.prototype.click = function click(selector) {
     this.log("Click on selector: " + selector, "debug");
     if (arguments.length > 1) {
         this.emit("deprecated", "The click() method does not process the fallbackToHref argument since 0.6");
@@ -345,6 +345,7 @@ Casper.prototype.download = function download(url, targetPath) {
     try {
         fs.write(targetPath, cu.decode(this.base64encode(url)), 'w');
         this.emit('downloaded.file', targetPath);
+        this.log(f("Downloaded and saved resource in %s", targetPath));
     } catch (e) {
         this.log(f("Error while downloading %s to %s: %s", url, targetPath, e), "error");
     }
@@ -440,20 +441,6 @@ Casper.prototype.evaluateOrDie = function evaluateOrDie(fn, message) {
 Casper.prototype.exists = function exists(selector) {
     return this.evaluate(function(selector) {
         return __utils__.exists(selector);
-    }, { selector: selector });
-};
-
-/**
- * Checks if an element matching the provided CSS3 selector is visible
- * current page DOM by checking that offsetWidth and offsetHeight are
- * both non-zero.
- *
- * @param  String  selector  A CSS3 selector
- * @return Boolean
- */
-Casper.prototype.visible = function visible(selector) {
-    return this.evaluate(function(selector) {
-        return __utils__.visible(selector);
     }, { selector: selector });
 };
 
@@ -1038,6 +1025,20 @@ Casper.prototype.viewport = function viewport(width, height) {
     };
     this.emit('viewport.changed', [width, height]);
     return this;
+};
+
+/**
+ * Checks if an element matching the provided CSS3 selector is visible
+ * current page DOM by checking that offsetWidth and offsetHeight are
+ * both non-zero.
+ *
+ * @param  String  selector  A CSS3 selector
+ * @return Boolean
+ */
+Casper.prototype.visible = function visible(selector) {
+    return this.evaluate(function(selector) {
+        return __utils__.visible(selector);
+    }, { selector: selector });
 };
 
 /**
